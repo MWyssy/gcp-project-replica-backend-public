@@ -1,0 +1,38 @@
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@8.2.1
+  maven: circleci/maven@1.4.1
+jobs:
+  build-and-test:
+    working_directory: ~/
+    docker:
+      - image: cimg/openjdk:17.0.7
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: mvn -B -DskipTests clean package
+          working_directory: ~/app
+      - run:
+          name: Test
+          command: mvn test
+          working_directory: ~/app
+  build-image-and-push:
+    working_directory: ~/
+    docker:
+      - image: cimg/aws:2023.05
+    steps:
+      - setup_remote_docker
+      - aws-ecr/build-and-push-image:
+          context: TFOTC-Project
+          repo: ce-tfotc-ecr-backend
+          path: .
+          build-path: .
+          tag: ${CIRCLE_BUILD_NUM} 
+workflows:
+  demo-app-pipeline: 
+    jobs:
+      - build-and-test
+      - build-image-and-push:
+          requires:
+            - build-and-test
