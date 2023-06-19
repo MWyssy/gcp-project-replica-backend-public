@@ -12,11 +12,11 @@ jobs:
       - run:
           name: Build
           command: mvn -B -DskipTests clean package
-          working_directory: ~/ce-team-project-backend/app
+          working_directory: ~/ce-team-project-backend
       - run:
           name: Test
           command: mvn test
-          working_directory: ~/ce-team-project-backend/app
+          working_directory: ~/ce-team-project-backend
   build-image-and-push:
     working_directory: ~/ce-team-project-backend
     docker:
