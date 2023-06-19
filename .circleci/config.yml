@@ -24,7 +24,6 @@ jobs:
     steps:
       - setup_remote_docker
       - aws-ecr/build-and-push-image:
-          context: TFOTC-Project
           repo: ce-tfotc-ecr-backend
           path: .
           build-path: .
@@ -34,5 +33,6 @@ workflows:
     jobs:
       - build-and-test
       - build-image-and-push:
+          context: TFOTC-Project
           requires:
             - build-and-test
