@@ -17,7 +17,7 @@ management:
 
 spring:
   datasource:
-    url: jdbc:postgresql://project-db.ckqwzbcspias.eu-west-2.rds.amazonaws.com:5432/my_test_db
+    url: jdbc:postgresql://project-db.ckqwzbcspias.eu-west-2.rds.amazonaws.com:5432/project_db
     username: postgres
     password: password
   jpa:
