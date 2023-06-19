@@ -4,7 +4,7 @@ orbs:
   maven: circleci/maven@1.4.1
 jobs:
   build-and-test:
-    working_directory: ~/
+    working_directory: ~/ce-team-project-backend
     docker:
       - image: cimg/openjdk:17.0.7
     steps:
@@ -12,13 +12,13 @@ jobs:
       - run:
           name: Build
           command: mvn -B -DskipTests clean package
-          working_directory: ~/app
+          working_directory: ~/ce-team-project-backend/app
       - run:
           name: Test
           command: mvn test
-          working_directory: ~/app
+          working_directory: ~/ce-team-project-backend/app
   build-image-and-push:
-    working_directory: ~/
+    working_directory: ~/ce-team-project-backend
     docker:
       - image: cimg/aws:2023.05
     steps:
