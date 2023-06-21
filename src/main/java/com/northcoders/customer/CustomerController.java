@@ -1,6 +1,9 @@
 package com.northcoders.customer;
 
 import com.northcoders.jwt.JWTUtil;
+
+import io.micrometer.core.annotation.Counted;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +18,7 @@ public class CustomerController {
     private final JWTUtil jwtUtil;
 
     public CustomerController(CustomerService customerService,
-                              JWTUtil jwtUtil) {
+            JWTUtil jwtUtil) {
         this.customerService = customerService;
         this.jwtUtil = jwtUtil;
     }
@@ -32,6 +35,7 @@ public class CustomerController {
     }
 
     @PostMapping
+    @Counted(value = "counted.success.test", description = "countNewCustomers")
     public ResponseEntity<?> registerCustomer(
             @RequestBody CustomerRegistrationRequest request) {
         customerService.addCustomer(request);
