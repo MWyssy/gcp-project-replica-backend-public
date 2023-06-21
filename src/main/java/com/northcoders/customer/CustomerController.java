@@ -2,11 +2,13 @@ package com.northcoders.customer;
 
 import com.northcoders.jwt.JWTUtil;
 
-import io.micrometer.core.annotation.Counted;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
 
@@ -16,11 +18,26 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final JWTUtil jwtUtil;
+    private final MeterRegistry meterRegistry;
+    private final Counter newCustomersCounter;
+    private final Gauge customersGauge;
 
     public CustomerController(CustomerService customerService,
-            JWTUtil jwtUtil) {
+            JWTUtil jwtUtil,
+            MeterRegistry meterRegistry) {
         this.customerService = customerService;
         this.jwtUtil = jwtUtil;
+        this.meterRegistry = meterRegistry;
+        this.newCustomersCounter = Counter.builder("customapp.new_customers_counter")
+                .description("Number of new customers added")
+                .register(meterRegistry);
+        this.customersGauge = Gauge.builder("customapp.customers_gauge", this, CustomerController::getCustomerCount)
+                .description("Number of customers")
+                .register(meterRegistry);
+    }
+
+    private static double getCustomerCount(CustomerController controller) {
+        return controller.customerService.getAllCustomers().size();
     }
 
     @GetMapping
@@ -38,6 +55,7 @@ public class CustomerController {
     public ResponseEntity<?> registerCustomer(
             @RequestBody CustomerRegistrationRequest request) {
         customerService.addCustomer(request);
+        newCustomersCounter.increment();
         String jwtToken = jwtUtil.issueToken(request.email(), "ROLE_USER");
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, jwtToken)
