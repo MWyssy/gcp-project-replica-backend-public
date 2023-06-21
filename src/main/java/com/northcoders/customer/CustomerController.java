@@ -20,6 +20,7 @@ public class CustomerController {
     private final JWTUtil jwtUtil;
     private final MeterRegistry meterRegistry;
     private final Counter newCustomersCounter;
+    private final Counter deletedCustomersCounter;
     private final Gauge customersGauge;
 
     public CustomerController(CustomerService customerService,
@@ -30,6 +31,9 @@ public class CustomerController {
         this.meterRegistry = meterRegistry;
         this.newCustomersCounter = Counter.builder("customapp.new_customers_counter")
                 .description("Number of new customers added")
+                .register(meterRegistry);
+        this.deletedCustomersCounter = Counter.builder("customapp.deleted_customers_counter")
+                .description("Number of customers deleted")
                 .register(meterRegistry);
         this.customersGauge = Gauge.builder("customapp.customers_gauge", this, CustomerController::getCustomerCount)
                 .description("Number of customers")
@@ -66,6 +70,7 @@ public class CustomerController {
     public void deleteCustomer(
             @PathVariable("customerId") Integer customerId) {
         customerService.deleteCustomerById(customerId);
+        deletedCustomersCounter.increment();
     }
 
     @PutMapping("{customerId}")
