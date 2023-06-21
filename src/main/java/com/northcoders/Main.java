@@ -2,6 +2,10 @@ package com.northcoders;
 
 import com.northcoders.customer.Customer;
 import com.northcoders.customer.CustomerRepository;
+
+import io.micrometer.core.aop.CountedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
+
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import org.springframework.boot.CommandLineRunner;
@@ -29,6 +33,11 @@ public class Main {
         };
     }
 
+    @Bean
+    CountedAspect countedAspect(MeterRegistry registry) {
+        return new CountedAspect(registry);
+    }
+
     private static void createRandomCustomer(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
         var faker = new Faker();
         Random random = new Random();
@@ -38,7 +47,7 @@ public class Main {
         int age = random.nextInt(16, 99);
         String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@northcoders.com";
         Customer customer = new Customer(
-                firstName +  " " + lastName,
+                firstName + " " + lastName,
                 email,
                 passwordEncoder.encode("password"),
                 age);
