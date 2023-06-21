@@ -3,6 +3,9 @@ package com.northcoders.customer;
 import com.northcoders.exception.DuplicateResourceException;
 import com.northcoders.exception.RequestValidationException;
 import com.northcoders.exception.ResourceNotFoundException;
+
+import io.micrometer.core.annotation.Counted;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,8 +25,8 @@ public class CustomerService {
     private final PasswordEncoder passwordEncoder;
 
     public CustomerService(@Qualifier("jdbc") CustomerDao customerDao,
-                           CustomerDTOMapper customerDTOMapper,
-                           PasswordEncoder passwordEncoder) {
+            CustomerDTOMapper customerDTOMapper,
+            PasswordEncoder passwordEncoder) {
         this.customerDao = customerDao;
         this.customerDTOMapper = customerDTOMapper;
         this.passwordEncoder = passwordEncoder;
@@ -40,17 +43,16 @@ public class CustomerService {
         return customerDao.selectCustomerById(id)
                 .map(customerDTOMapper)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "customer with id [%s] not found".formatted(id)
-                ));
+                        "customer with id [%s] not found".formatted(id)));
     }
 
+    @Counted(value = "counted.success.test", description = "countNewCustomers")
     public void addCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
         // check if email exists
         String email = customerRegistrationRequest.email();
         if (customerDao.existsCustomerWithEmail(email)) {
             throw new DuplicateResourceException(
-                    "email already taken"
-            );
+                    "email already taken");
         }
 
         // add
@@ -71,18 +73,17 @@ public class CustomerService {
     private void checkIfCustomerExistsOrThrow(Integer customerId) {
         if (!customerDao.existsCustomerById(customerId)) {
             throw new ResourceNotFoundException(
-                    "customer with id [%s] not found".formatted(customerId)
-            );
+                    "customer with id [%s] not found".formatted(customerId));
         }
     }
 
     public void updateCustomer(Integer customerId,
-                               CustomerUpdateRequest updateRequest) {
-        // TODO: for JPA use .getReferenceById(customerId) as it does does not bring object into memory and instead a reference
+            CustomerUpdateRequest updateRequest) {
+        // TODO: for JPA use .getReferenceById(customerId) as it does does not bring
+        // object into memory and instead a reference
         Customer customer = customerDao.selectCustomerById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "customer with id [%s] not found".formatted(customerId)
-                ));
+                        "customer with id [%s] not found".formatted(customerId)));
 
         boolean changes = false;
 
@@ -99,18 +100,16 @@ public class CustomerService {
         if (updateRequest.email() != null && !updateRequest.email().equals(customer.getEmail())) {
             if (customerDao.existsCustomerWithEmail(updateRequest.email())) {
                 throw new DuplicateResourceException(
-                        "email already taken"
-                );
+                        "email already taken");
             }
             customer.setEmail(updateRequest.email());
             changes = true;
         }
 
         if (!changes) {
-           throw new RequestValidationException("no data changes found");
+            throw new RequestValidationException("no data changes found");
         }
 
         customerDao.updateCustomer(customer);
     }
 }
-

@@ -35,7 +35,6 @@ public class CustomerController {
     }
 
     @PostMapping
-    @Counted(value = "counted.success.test", description = "countNewCustomers")
     public ResponseEntity<?> registerCustomer(
             @RequestBody CustomerRegistrationRequest request) {
         customerService.addCustomer(request);
