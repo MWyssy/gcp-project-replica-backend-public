@@ -44,6 +44,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
         }
 
         @Override
+        @Counted(value = "counted.newcustomer", description = "countNewCustomers")
         public void insertCustomer(Customer customer) {
                 var sql = """
                                 INSERT INTO customer(name, email, password, age)

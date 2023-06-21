@@ -46,7 +46,6 @@ public class CustomerService {
                         "customer with id [%s] not found".formatted(id)));
     }
 
-    @Counted(value = "counted.success.test", description = "countNewCustomers")
     public void addCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
         // check if email exists
         String email = customerRegistrationRequest.email();
