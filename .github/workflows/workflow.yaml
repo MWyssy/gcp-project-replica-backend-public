@@ -1,0 +1,61 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        run: npm install
+      - name: Test
+        run: npm test
+  Build-and-Push:
+    needs: Test
+    name: Tagged Docker release to Google Artifact Registry
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+
+      - id: auth
+        name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          token_format: access_token
+          workload_identity_provider: projects/71612204665/locations/global/workloadIdentityPools/project-pool/providers/github-access
+          service_account: gcp-pr-sa@gcp-project-replica-391115.iam.gserviceaccount.com
+          access_token_lifetime: 300s
+
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v1
+        with:
+          registry: europe-west2-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Get tag
+        id: get-tag
+        uses: amitsingh-007/next-release-tag@v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: '2.'
+          tag_template: 'i'
+
+      - id: docker-push-tagged
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+             europe-west2-docker.pkg.dev/gcp-project-replica-391115/gcp-pr-container-reg-be/gcp-pr-be:${{ steps.generate_release_tag.outputs.next_release_tag }}
+             europe-west2-docker.pkg.dev/gcp-project-replica-391115/gcp-pr-container-reg-be/gcp-pr-be:latest
