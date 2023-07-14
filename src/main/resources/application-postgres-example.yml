@@ -19,7 +19,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/testdb2
     username: postgres
-    password: password
+    password: supersecretpassword
   jpa:
     hibernate:
       ddl-auto: validate
