@@ -54,5 +54,5 @@ jobs:
         with:
           push: true
           tags: |
-             europe-west2-docker.pkg.dev/gcp-project-replica-391115/gcp-pr-container-reg-be/gcp-pr-be:${{ github.run_number }}
+             europe-west2-docker.pkg.dev/gcp-project-replica-391115/gcp-pr-container-reg-be/gcp-pr-be:2.${{ github.run_number }}
              europe-west2-docker.pkg.dev/gcp-project-replica-391115/gcp-pr-container-reg-be/gcp-pr-be:latest
