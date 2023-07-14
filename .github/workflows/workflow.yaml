@@ -10,9 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup
-        run: npm install
+        run: mvn -B -DskipTests clean package
       - name: Test
-        run: npm test
+        run: mvn test
   Build-and-Push:
     needs: Test
     name: Tagged Docker release to Google Artifact Registry
